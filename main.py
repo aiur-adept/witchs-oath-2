@@ -52,7 +52,6 @@ def render_entities(stdscr, state):
     # special-symbol central nobles
     for _, nid in enumerate(state['world']['nobles']):
         noble = state['world']['nobles'][nid]
-        logging.info(noble)
         stdscr.addstr(noble['position'][1]+1,
                       noble['position'][0]+1,
                       noble['symbol'],
