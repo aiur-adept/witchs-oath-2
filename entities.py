@@ -1,6 +1,6 @@
 displays = [
         ' ', # empty space          0   SPACE
-        'X', # barrier                  ITEMS
+        '█', # barrier                  ITEMS
         'o', # ritual coin
         '^', # mana bottle
         '+', # health bottle

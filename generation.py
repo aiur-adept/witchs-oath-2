@@ -39,6 +39,9 @@ connection_spec = {
     }
 }
 
+def in_map(x, y):
+    return x >= 0 and x < MAGIC_MAP_W and y >= 0 and y < MAGIC_MAP_H
+
 def spec_to_seed_pos(spec):
     return [
             int(constants.MAGIC_MAP_W * spec[0]),
@@ -57,7 +60,6 @@ def gen_antechambers(cardinal):
     antechambers = []
     for _, connect in enumerate(connection_spec[cardinal]):
         ac_seed_pos = spec_to_seed_pos(connection_spec[cardinal][connect])
-        logger.info(f'ac_seed_pos: {ac_seed_pos}')
         ac_rect = [ac_seed_pos[0], ac_seed_pos[1], 1, 1]
         antechamber = expand_rect(ac_rect, 3)
         antechambers.append(antechamber)
@@ -77,38 +79,54 @@ def gen_random_rects():
         rects.append(rand_rect())
     return rects
 
-def connect_rooms(rects):
-    return rects
+
+def write_hallways(rects, m):
+    def central_point(r):
+        return [r[0]+r[2]//2, r[1]+r[3]//2]
+    def room_delta(r1, r2):
+        c1 = central_point(r1)
+        c2 = central_point(r2)
+        dx = c2[0] - c1[0]
+        dy = c2[1] - c1[1]
+        return [dx, dy]
+    def write_L_connector(r1, r2):
+        d = room_delta(r1, r2)
+        src = central_point(r1)
+        dest = central_point(r2) 
+        p = src
+        # iterate horizontal distance 
+        for x in range(r1[0], r1[0]+d[0], (-1 if d[0] < 0 else 1)):
+            if in_map(p[0] + x, p[1]):
+                m[p[1]][x] = 0
+        # we are now horizontally-aligned
+        p[0] = dest[0]
+        # iterate vertical distance
+        for y in range(r1[1], r1[1]+d[1], (-1 if d[1] < 0 else 1)):
+            if in_map(p[0], p[1]+y):
+                m[y][p[0]] = 0
+    for i in range(0, len(rects)):
+        for j in range(i+1, len(rects)):
+            write_L_connector(rects[i], rects[j])
+        
 
 def write_floorplan(rects, m):
-    def in_map(x, y):
-        return x >= 0 and x < MAGIC_MAP_W and y >= 0 and y < MAGIC_MAP_H
-
     for rect in rects:
         x0 = rect[0]
         y0 = rect[1]
         w = rect[2]
         h = rect[3]
-        logger.info(f'writing rect {rect}')
         for j in range(0, h):
             for i in range(0, w):
                 if in_map(x0 + i, y0 + j):
                     m[y0 + j][x0 + i] = 0
 
 def gen_map(state):
-    """
-    build the rooms the world is made of; inspired by method from:
-    https://www.reddit.com/r/roguelikedev/comments/552hd5/comment/d870l0v/ 
-    """
     for _, cardinal in enumerate(connection_spec):
         m = state['map'][cardinal]
-        logger.info(f'===floorplan in {cardinal}...')
-        rects = gen_antechambers(cardinal) + gen_random_rects()
-        logger.info('rects:')
-        logger.info(rects)
-        rects_final = connect_rooms(rects)
-        write_floorplan(rects_final, m)
-        logger.info('---/floorplan')
+        central_room = [MAGIC_MAP_W//2-9, MAGIC_MAP_H//2-9, 18, 18]
+        rects = gen_antechambers(cardinal) + gen_random_rects() + [central_room]
+        write_floorplan(rects, m)
+        write_hallways(rects, m)
 
 def gen_world(state):
     """

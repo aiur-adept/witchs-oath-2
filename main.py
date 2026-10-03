@@ -45,26 +45,26 @@ def render_entities(stdscr, state):
     # TODO
     # render player
     player = state['player']
-    stdscr.addstr(player['position'][1], 
-                  player['position'][0], 
+    stdscr.addstr(player['position'][1]+1, 
+                  player['position'][0]+1, 
                   entities.displays[entities.WITCH],
                   curses.color_pair(2))
 
 def player_movement(state, key):
+    new_pos = [state['player']['position'][0], 
+               state['player']['position'][1]]
     if key == curses.KEY_UP:
-        state['player']['position'][1] += -1
+        new_pos[1] += -1
     elif key == curses.KEY_DOWN:
-        state['player']['position'][1] += 1
+        new_pos[1] += 1
     elif key == curses.KEY_LEFT:
-        state['player']['position'][0] += -1
+        new_pos[0] += -1
     elif key == curses.KEY_RIGHT:
-        state['player']['position'][0] += 1
-    state['player']['position'][0] = max(1, 
-                                        min(MAGIC_MAP_W, 
-                                        state['player']['position'][0]))
-    state['player']['position'][1] = max(1, 
-                                        min(MAGIC_MAP_H, 
-                                        state['player']['position'][1]))
+        new_pos[0] += 1
+    new_pos[0] = max(0, min(MAGIC_MAP_W - 1, new_pos[0]))
+    new_pos[1] = max(0, min(MAGIC_MAP_H - 1, new_pos[1]))
+    if state['map'][state['player']['setting']][new_pos[1]][new_pos[0]] == 0:
+        state['player']['position'] = new_pos
 
 def player_action(state, key):
     pass
