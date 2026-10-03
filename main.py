@@ -5,8 +5,11 @@ Autumn 2026
 """
 import curses
 import time
-import logging
 
+import locale
+locale.setlocale(locale.LC_ALL, '') 
+
+import logging
 logger = logging.getLogger(__name__)
 
 import os
@@ -19,6 +22,9 @@ from constants import (
         MAGIC_MAP_H
 )
 import entities
+from nobles import (
+        dialog_noble
+)
 
 # color fix for windows from
 # https://www.reddit.com/r/learnpython/comments/1awa6mj/curses_color_reset_or_curses_foiled_again/
@@ -33,6 +39,7 @@ if os.name == 'nt':
 
 
 def render_map(stdscr, state):
+    curses.color_pair(0)
     m = state['map'][state['player']['setting']]
     for y, row in enumerate(m):
         for x, e in enumerate(row):
@@ -42,7 +49,14 @@ def render_entities(stdscr, state):
     # render incants
     # TODO
     # render other entities
-    # TODO
+    # special-symbol central nobles
+    for _, nid in enumerate(state['world']['nobles']):
+        noble = state['world']['nobles'][nid]
+        logging.info(noble)
+        stdscr.addstr(noble['position'][1]+1,
+                      noble['position'][0]+1,
+                      noble['symbol'],
+                      curses.color_pair(3))
     # render player
     player = state['player']
     stdscr.addstr(player['position'][1]+1, 
@@ -50,7 +64,17 @@ def render_entities(stdscr, state):
                   entities.displays[entities.WITCH],
                   curses.color_pair(2))
 
-def player_movement(state, key):
+def player_movement(stdscr, state, key):
+    def collides_noble(p):
+        for _, nid in enumerate(state['world']['nobles']):
+            npos = state['world']['nobles'][nid]['position']
+            if p[0] == npos[0] and p[1] == npos[1]:
+                return nid
+        return None
+    def space_free(p):
+        empty = (state['map'][state['player']['setting']][p[1]][p[0]] == 0)
+        return (empty and (collides_noble(p) is None))
+
     new_pos = [state['player']['position'][0], 
                state['player']['position'][1]]
     if key == curses.KEY_UP:
@@ -63,7 +87,10 @@ def player_movement(state, key):
         new_pos[0] += 1
     new_pos[0] = max(0, min(MAGIC_MAP_W - 1, new_pos[0]))
     new_pos[1] = max(0, min(MAGIC_MAP_H - 1, new_pos[1]))
-    if state['map'][state['player']['setting']][new_pos[1]][new_pos[0]] == 0:
+    collided_nid = collides_noble(new_pos)
+    if collided_nid is not None:
+        dialog_noble(stdscr, state, collided_nid)
+    if space_free(new_pos): 
         state['player']['position'] = new_pos
 
 def player_action(state, key):
@@ -103,7 +130,7 @@ def game(stdscr, state):
         if current_time - last_input_time >= INPUT_HYST_S:
             if last_input != -1 and key == -1:
                 key = last_input
-            player_movement(state, key)
+            player_movement(stdscr, state, key)
             player_action(state, key)
             last_input_time = current_time
             last_input = -1
@@ -185,6 +212,13 @@ def entrypoint(stdscr):
     # Enable special keyboard inputs (like arrow keys)
     stdscr.keypad(True)
 
+    curses.start_color()
+    curses.use_default_colors()
+    # player
+    curses.init_pair(2, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    # nobles
+    curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
+
     # game state
     state = {}
     next_scene, state = main_menu(stdscr, state)
@@ -197,14 +231,9 @@ def entrypoint(stdscr):
 
 def main():
     # set up logging
-    logging.basicConfig(filename='WO.log', level=logging.INFO)
-    # set up curses
-    stdscr = curses.initscr()
-    curses.start_color()
-    curses.use_default_colors()
-    curses.init_pair(2, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    logging.basicConfig(filename='WO.log', level=logging.INFO) 
     # entrypoint
-    entrypoint(stdscr)
+    curses.wrapper(entrypoint)
 
 if __name__ == '__main__':
     main()

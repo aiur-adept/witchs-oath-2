@@ -7,7 +7,7 @@ displays = [
         'w', # witch                5   ENTITIES
         'n', # noble
         'b', # bird
-        'r', # ring
+        'O', # ring
         '*', # danger
         't', # temple               10
         '!', # Q Incantation            EFFECTS

@@ -13,7 +13,16 @@ from constants import (
         MAGIC_MAP_W,
         MAGIC_MAP_H,
         RECTS_PER_MAP,
-        ROOM_SCALE
+        ROOM_SCALE,
+        MIDDLE_ROOM_DIMENSION,
+        MAP_EDGE_CLEAR
+)
+
+from nobles import (
+        QMRSK_ID,
+        WMRSK_ID,
+        EMRSK_ID,
+        TRSS_ID 
 )
 
 # determining which maps connect to which other maps, and where
@@ -68,8 +77,8 @@ def gen_antechambers(cardinal):
 def gen_random_rects():
     def rand_rect():
         return [
-            random.randint(0, MAGIC_MAP_W),
-            random.randint(0, MAGIC_MAP_H),
+            random.randint(MAP_EDGE_CLEAR, MAGIC_MAP_W - MAP_EDGE_CLEAR),
+            random.randint(MAP_EDGE_CLEAR, MAGIC_MAP_H - MAP_EDGE_CLEAR),
             random.randint(4, ROOM_SCALE),
             random.randint(4, ROOM_SCALE)
         ]
@@ -80,7 +89,7 @@ def gen_random_rects():
     return rects
 
 
-def write_hallways(rects, m):
+def write_hallway(r1, r2, m):
     def central_point(r):
         return [r[0]+r[2]//2, r[1]+r[3]//2]
     def room_delta(r1, r2):
@@ -89,24 +98,21 @@ def write_hallways(rects, m):
         dx = c2[0] - c1[0]
         dy = c2[1] - c1[1]
         return [dx, dy]
-    def write_L_connector(r1, r2):
-        d = room_delta(r1, r2)
-        src = central_point(r1)
-        dest = central_point(r2) 
-        p = src
-        # iterate horizontal distance 
-        for x in range(r1[0], r1[0]+d[0], (-1 if d[0] < 0 else 1)):
-            if in_map(p[0] + x, p[1]):
-                m[p[1]][x] = 0
-        # we are now horizontally-aligned
-        p[0] = dest[0]
-        # iterate vertical distance
-        for y in range(r1[1], r1[1]+d[1], (-1 if d[1] < 0 else 1)):
-            if in_map(p[0], p[1]+y):
-                m[y][p[0]] = 0
-    for i in range(0, len(rects)):
-        for j in range(i+1, len(rects)):
-            write_L_connector(rects[i], rects[j])
+
+    d = room_delta(r1, r2)
+    src = central_point(r1)
+    dest = central_point(r2) 
+    p = [src[0], src[1]]
+    # iterate horizontal distance 
+    for x in range(src[0], src[0]+d[0], (-1 if d[0] < 0 else 1)):
+        if in_map(x, p[1]):
+            m[p[1]][x] = 0
+    # we are now horizontally-aligned
+    p[0] = dest[0]
+    # iterate vertical distance
+    for y in range(src[1], src[1]+d[1], (-1 if d[1] < 0 else 1)):
+        if in_map(p[0], y):
+            m[y][p[0]] = 0
         
 
 def write_floorplan(rects, m):
@@ -123,14 +129,58 @@ def write_floorplan(rects, m):
 def gen_map(state):
     for _, cardinal in enumerate(connection_spec):
         m = state['map'][cardinal]
-        central_room = [MAGIC_MAP_W//2-9, MAGIC_MAP_H//2-9, 18, 18]
-        rects = gen_antechambers(cardinal) + gen_random_rects() + [central_room]
-        write_floorplan(rects, m)
-        write_hallways(rects, m)
+        middle = [MAGIC_MAP_W//2 - MIDDLE_ROOM_DIMENSION, 
+                  MAGIC_MAP_H//2 - MIDDLE_ROOM_DIMENSION, 
+                  18, 
+                  18]
+        acs = gen_antechambers(cardinal) 
+        randoms = gen_random_rects() 
+        write_floorplan(acs + randoms + [middle], m)
+        for ac in acs:
+            write_hallway(ac, middle, m)
+        for r in randoms:
+            write_hallway(r, middle, m)
+        for i in range(0, len(randoms)):
+            for j in range(i, len(randoms)):
+                write_hallway(randoms[i], randoms[j], m)
 
 def gen_world(state):
     """
     populate the world with entities
     """
-    pass
+    # generate nobles in central
+    nobles = {}
+    nobles[QMRSK_ID] = {
+        'name': 'Qmrsk, Scion of Emanation',
+        'symbol': 'q',
+        'position': [
+            MAGIC_MAP_W//2,
+            MAGIC_MAP_H//2 - MIDDLE_ROOM_DIMENSION//2,
+        ]
+    }
+    nobles[WMRSK_ID] = {
+        'name': 'Wmrsk, Scion of Occultation',
+        'symbol': 'w', 
+        'position': [
+            MAGIC_MAP_W//2,
+            MAGIC_MAP_H//2 + MIDDLE_ROOM_DIMENSION//2,
+        ]
+    }
+    nobles[EMRSK_ID] = {
+        'name': 'Emrsk, Scion of Annihilation',
+        'symbol': 'e',
+        'position': [
+            MAGIC_MAP_W//2 - MIDDLE_ROOM_DIMENSION//2,
+            MAGIC_MAP_H//2
+        ]
+    }
+    nobles[TRSS_ID] = {
+        'name': 'Trss, Noble of Power',
+        'symbol': 'r',
+        'position': [
+            MAGIC_MAP_W//2 + MIDDLE_ROOM_DIMENSION//2,
+            MAGIC_MAP_H//2
+        ]
+    }
+    state['world']['nobles'] = nobles
 
