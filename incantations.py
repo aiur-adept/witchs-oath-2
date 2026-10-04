@@ -46,7 +46,7 @@ def animate_incant(stdscr, state, p, key):
         stdscr.refresh()
         time.sleep(0.1)
 
-def incant_effect(state, key):
+def incant_effect(state, p, key):
     # TODO: characteristic effects on game state of each incantation
     pass
 
@@ -54,6 +54,8 @@ def incant(stdscr, state, key):
     # display and animate the incantation before continuing
     animate_incant(stdscr, state, state['player']['position'], key)
     # affect state 
-    incant_effect(state['player']['position'], key)
+    incant_effect(state, 
+                  state['player']['position'], 
+                  key)
     
 
