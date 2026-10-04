@@ -8,8 +8,8 @@ displays = [
         'n', # noble
         'b', # bird TODO
         '0', # unknown ring 
-        'W', # wiremite TODO
-        't', # temple piece TODO          10
+        'W', # wiremite
+        't', # temple piece         10
         '!', # Q Incantation            EFFECTS
         '@', # W Incantation 
         '#', # E Incantation

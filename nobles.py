@@ -4,7 +4,8 @@ from dialog import (
 from constants import (
         MAGIC_MAP_W,
         MAGIC_MAP_H,
-        MIDDLE_ROOM_DIMENSION
+        MIDDLE_ROOM_DIMENSION,
+        N_TEMPLE_PIECES
 )
 
 
@@ -62,7 +63,7 @@ qmrsk_thanks = [
     "[You look upon Qmrsk, Scion of Emanation, a man of candlelight]",
     "[Qmrsk speaks to you, his voice as a flickering of light]",
     "Many illuminations to you, Traveller. My friend is returned.",
-    "I can ask for no more. I wish only that you may also..."
+    "I can ask for no more. I wish only that you may also...",
     "I shall say no more."
 ]
 wmrsk_plea = [
@@ -121,15 +122,15 @@ trss_plea = [
     "I'll tell it at the journey's end, and well."
 ]
 trss_penultimate = [
-    "Swiftly take the pieces of the temple in your hands,"
-    "You have them all, incant before me, it shall stand."
+    "Swiftly take the pieces of the temple in your hands,",
+    "You have them all, incant [T] before me, it shall stand."
 ]
 
 noble_dialogs = {
         QMRSK_ID: lambda state: qmrsk_plea if not state['player']['saved_rndrr'] else qmrsk_thanks,
         WMRSK_ID: lambda state: wmrsk_plea if not state['player']['saved_sndrr'] else wmrsk_thanks,
         EMRSK_ID: lambda state: emrsk_plea if not state['player']['saved_indrr'] else emrsk_thanks,
-        TRSS_ID: lambda state: trss_plea if not state['player']['has_all_temple_pieces'] else trss_penultimate,
+        TRSS_ID: lambda state: trss_plea if state['player']['temple_pieces_count'] < N_TEMPLE_PIECES else trss_penultimate,
         RNDRR_ID: lambda state: [
             "[You look upon Rndrr, Friend of Qmrsk, a man of learning.]",
             "[Rndrr speaks to you, his voice a flipping of pages]",

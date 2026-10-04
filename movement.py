@@ -1,4 +1,5 @@
 import curses
+import random
 
 from generation import (
         connection_spec
@@ -17,6 +18,23 @@ import entities
 from items import (
         pick_up_item
 )
+from wiremites import (
+        dialog_wiremite
+)
+
+def collides_wiremite(state, p):
+    if state['player']['setting'] == 'C':
+        return None
+    cardinal = state['player']['setting']
+    wm_result = list(filter(lambda wm: wm['cardinal'] == cardinal, 
+                     state['world']['wiremites']))
+    if len(wm_result) == 0:
+        return
+    wm_here = wm_result[0]
+    wmpos = wm_here['position']
+    if p[0] == wmpos[0] and p[1] == wmpos[1]:
+        return wm_here
+    return None
 
 def collides_item(state, p):
     cardinal = state['player']['setting']
@@ -34,7 +52,9 @@ def collides_noble(state, p):
 
 def space_free(state, p):
     empty = (state['map'][state['player']['setting']][p[1]][p[0]] == 0)
-    return (empty and (collides_noble(state, p) is None))
+    return (empty and \
+            (collides_noble(state, p) is None) and \
+            (collides_wiremite(state, p) is None))
 
 def in_antechamber(state, p):
     setting = state['player']['setting']
@@ -74,6 +94,10 @@ def check_collision(stdscr, state, new_pos):
     collided_item = collides_item(state, new_pos)
     if collided_item is not None:
         pick_up_item(stdscr, state, collided_item, new_pos)
+    # wiremite collision
+    collided_wiremite = collides_wiremite(state, new_pos)
+    if collided_wiremite is not None:
+        dialog_wiremite(stdscr, state, collided_wiremite)
 
 def player_movement(stdscr, state, key): 
     # calculate new position
@@ -89,7 +113,7 @@ def player_movement(stdscr, state, key):
         new_pos[0] += 1
     new_pos[0] = max(0, min(MAGIC_MAP_W - 1, new_pos[0]))
     new_pos[1] = max(0, min(MAGIC_MAP_H - 1, new_pos[1]))
-    # collide with nobles to talk
+    # collide with nobles to talk, wiremites to be hurt
     check_collision(stdscr, state, new_pos)
     # leave to another cardinal
     leave = leave_direction(new_pos)
@@ -104,4 +128,20 @@ def player_movement(stdscr, state, key):
         state['player']['position'] = new_pos
 
 def wiremite_movement(stdscr, state):
-    # TODO
+    if state['player']['setting'] == 'C':
+        return None
+    cardinal = state['player']['setting']
+    wm_result = list(filter(lambda wm: wm['cardinal'] == cardinal, 
+                     state['world']['wiremites']))
+    if len(wm_result) == 0:
+        return
+    wm_here = wm_result[0]
+    wmpos = wm_here['position']
+    ppos = state['player']['position']
+    dx = 1 if wmpos[0] < ppos[0] else (-1 if wmpos[0] > ppos[0] else 0)
+    dy = 1 if wmpos[1] < ppos[1] else (-1 if wmpos[1] > ppos[1] else 0)
+    choice = random.randint(0,2)
+    if choice == 0:
+        wm_here['position'][0] += dx
+    else:
+        wm_here['position'][1] += dy

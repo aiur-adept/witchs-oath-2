@@ -17,3 +17,6 @@ def pick_up_item(stdscr, state, collided_item, p):
     state['map'][cardinal][p[1]][p[0]] = entities.EMPTY_SPACE
     # display dialog
     dialog_flow(stdscr, [f'[You picked up {names[collided_item]}]'])
+    # track temple completion
+    if collided_item == entities.TEMPLE_PIECE:
+        state['player']['temple_pieces_count'] += 1

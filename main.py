@@ -22,7 +22,8 @@ from generation import (
 from constants import (
         INPUT_HYST_S,
         MAGIC_MAP_W, 
-        MAGIC_MAP_H
+        MAGIC_MAP_H,
+        N_TEMPLE_PIECES
 )
 import entities
 from colors import init_colors
@@ -55,12 +56,19 @@ if os.name == 'nt':
 def player_action(stdscr, state, key):
     if key in [ord('q'), ord('w'), ord('e')]:
         incant(stdscr, state, key)
+    temple_complete = (key == ord('t') and \
+            state['player']['temple_pieces_count'] == N_TEMPLE_PIECES)
+    return temple_complete
 
 def init_state(state):
     state['player'] = {
             'position': [MAGIC_MAP_W//2, MAGIC_MAP_H//2],
             'setting': 'C',
-            'inventory': []
+            'inventory': [],
+            'saved_rndrr': False,
+            'saved_sndrr': False,
+            'saved_indrr': False,
+            'temple_pieces_count': 0
     }
     state['world'] = {}
     state['map'] = {
@@ -94,9 +102,11 @@ def game(stdscr, state):
         if current_time - last_input_time >= INPUT_HYST_S:
             if last_input != -1 and key == -1:
                 key = last_input
-            player_movement(stdscr, state, key)
-            player_action(stdscr, state, key)
             wiremite_movement(stdscr, state)
+            player_movement(stdscr, state, key)
+            temple_complete = player_action(stdscr, state, key)
+            if temple_complete:
+                break
             last_input_time = current_time
             last_input = -1
         else:
@@ -105,6 +115,46 @@ def game(stdscr, state):
     return postgame, state
 
 def postgame(stdscr, state):
+    stdscr.clear()
+    stdscr.addstr(0, 0, "--- THE CONCLUSION OF WITCH'S OATH 2 ---", curses.A_UNDERLINE)
+    narration_str = """
+    Trss looks upon you, as you hold the pieces of 
+    temple. Qmrsk incants an incantation of Emanation, 
+    Wmrsk of Occultation, and Emrsk remains silent, 
+    crossing his hands over his heart. As Trss begins 
+    to sing, the pieces of the temple levitate and 
+    assemble before you into a
+    brilliant light. Trss sings,
+
+        O traveller, lost midway on this weary road,
+        I should reveal to you what's been your load,
+        To fare amid the wastelands seeking peace,
+        I ought to let you know the very least,
+
+        You were before your sickness of the mind my love,
+        The wiremites, descending in a cloud from on above,
+        Struck us down, our party waylaid in the mire,
+        As Wmrsk fought them off with fire.
+
+        My tears now flow again to heal your hurts,
+        And might they also quench your thirst.
+        Remember now your name you chose before,
+        Our party reassembled, onward more...
+
+    As Trss's tears emanate from the glowing light 
+    of the reassembled temple, you remember your past, 
+    your life, that you had known them all.
+    You feel the wiremites inside you dying.
+    It is good to live, meagre though it is.
+
+    [Press any key 3 times to exit.]
+    """
+    for i, line in enumerate(narration_str.split('\n')):
+        stdscr.addstr(i+1, 0, line)
+    stdscr.refresh()
+    stdscr.getch()
+    stdscr.getch()
+    stdscr.getch()
     return None, state
 
 def about(stdscr, state):
@@ -113,16 +163,17 @@ def about(stdscr, state):
     about_str = """
     Witch's Oath 2 is a game meant to be played in a single 
     sitting using a terminal and the arrow keys plus space, 
-    and Q, W, E (Incantation keys). 
+    and Q, W, E (Incantation keys) and T (build Temple key). 
 
     The story of the game is that of a Witch on a pilgrimage
     through four decaying wastelands to rebuild a temple created before the
     proliferation of the dreaded wiremites. She will encounter monstrous 
-    Dangers, decaying souls trapped in bodies that have become wiremite 
-    hives, whom she may to return to peace using Incantations. 
-    She will meet Nobles and Birds along the way who will aid her. 
-    It is possible to find Rings as well. Each playthrough will be shuffled,
-    as a deck of cards.
+    them, decaying souls trapped in bodies that have become wiremite 
+    hives, whom she may to return to peace using Incantations
+    (use the blue incantation to return the blue wiremite to peace, etc.)
+
+    She will meet Nobles along the way who will aid her, and whom she
+    will aid.
 
     The game represents a radical break in developmental philosophy from
     Witch's Oath, the digital card game by the same author, making use of
@@ -188,7 +239,7 @@ def entrypoint(stdscr):
        next_next_scene, state = next_scene(stdscr, state)
        next_scene = next_next_scene
        if next_scene == None:
-           break
+           exit()
 
 def main():
     # set up logging
