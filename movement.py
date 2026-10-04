@@ -13,6 +13,15 @@ from util import (
 from nobles import (
         dialog_noble
 )
+import entities
+from items import (
+        pick_up_item
+)
+
+def collides_item(state, p):
+    cardinal = state['player']['setting']
+    candidate = state['map'][cardinal][p[1]][p[0]]
+    return candidate if entities.is_item(candidate) else None
 
 def collides_noble(state, p):
     if state['player']['setting'] != 'C':
@@ -61,6 +70,10 @@ def check_collision(stdscr, state, new_pos):
     collided_nid = collides_noble(state, new_pos)
     if collided_nid is not None:
         dialog_noble(stdscr, state, collided_nid)
+    # item collision
+    collided_item = collides_item(state, new_pos)
+    if collided_item is not None:
+        pick_up_item(stdscr, state, collided_item, new_pos)
 
 def player_movement(stdscr, state, key): 
     # calculate new position

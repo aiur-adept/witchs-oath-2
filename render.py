@@ -3,7 +3,8 @@ import curses
 import entities
 from colors import (
         COLORS_NOBLES,
-        COLORS_PLAYER
+        COLORS_PLAYER,
+        COLORS_ITEM
 )
 
 def render_map(stdscr, state):
@@ -11,12 +12,13 @@ def render_map(stdscr, state):
     m = state['map'][state['player']['setting']]
     for y, row in enumerate(m):
         for x, e in enumerate(row):
-            stdscr.addstr(y+1, x+1, entities.displays[e])
+            color = curses.color_pair(COLORS_ITEM) if entities.is_item(e) else curses.color_pair(0)
+            stdscr.addstr(y+1, x+1, entities.displays[e], color)
 
 def render_world_entities(stdscr, state):
     cardinal = state['player']['setting']
     w = state['world']
-    # render other entities
+    # render wiremites
     # TODO
     # special-symbol central nobles
     if cardinal == 'C':

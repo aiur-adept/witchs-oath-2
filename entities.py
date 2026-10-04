@@ -1,15 +1,15 @@
 displays = [
         ' ', # empty space          0   SPACE
         '█', # barrier                  
-        'O', # Trss's ring TODO         ITEMS
-        '^', # Trss's hat TODO
-        '+', # health bottle TODO
+        'O', # Trss's ring              ITEMS
+        '^', # Trss's hat 
+        '+', # health bottle 
         'w', # witch                5   ENTITIES
         'n', # noble
         'b', # bird TODO
-        '0', # unknown ring TODO 
+        '0', # unknown ring 
         'W', # wiremite TODO
-        't', # temple TODO          10
+        't', # temple piece TODO          10
         '!', # Q Incantation            EFFECTS
         '@', # W Incantation 
         '#', # E Incantation
@@ -17,15 +17,18 @@ displays = [
 
 EMPTY_SPACE = 0
 BARRIER = 1
-RITUAL_COIN = 2
-MANA_BOTTLE = 3
+TRSS_RING = 2
+TRSS_HAT = 3
 HEALTH_BOTTLE = 4
 WITCH = 5
 NOBLE = 6
 BIRD = 7
-RING = 8
-DANGER = 9
-TEMPLE = 10
+UNKNOWN_RING = 8
+WIREMITE = 9
+TEMPLE_PIECE = 10
 Q_INCANT = 11
 W_INCANT = 12
 E_INCANT = 13
+
+def is_item(e):
+    return e in [TRSS_RING, TRSS_HAT, HEALTH_BOTTLE, UNKNOWN_RING, TEMPLE_PIECE]

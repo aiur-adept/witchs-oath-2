@@ -54,7 +54,8 @@ def player_action(stdscr, state, key):
 def init_state(state):
     state['player'] = {
             'position': [MAGIC_MAP_W//2, MAGIC_MAP_H//2],
-            'setting': 'C'
+            'setting': 'C',
+            'inventory': []
     }
     state['world'] = {}
     state['map'] = {

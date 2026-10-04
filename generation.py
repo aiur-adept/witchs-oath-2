@@ -15,7 +15,8 @@ from constants import (
         RECTS_PER_MAP,
         ROOM_SCALE,
         MIDDLE_ROOM_DIMENSION,
-        MAP_EDGE_CLEAR
+        MAP_EDGE_CLEAR,
+        N_TEMPLE_PIECES
 )
 
 from nobles import (
@@ -24,6 +25,8 @@ from nobles import (
         EMRSK_ID,
         TRSS_ID 
 )
+
+import entities
 
 # determining which cardinals connect to which other cardinals, and where
 # (positions of antechambers as ratios of w,h)
@@ -188,16 +191,35 @@ def gen_central_nobles(state):
     }
     state['world']['C']['nobles'] = nobles
 
-def gen_special_items(state):
+# NOTE: this is inefficient for sure, we ought to cache this per cardinal...
+def random_valid_position(state, cardinal):
+    # gen list of valid positions
+    valid_positions = []
+    for y in range(10, MAGIC_MAP_H-10):
+        for x in range(10, MAGIC_MAP_W-10):
+            if state['map'][cardinal][y][x] == entities.EMPTY_SPACE:
+                valid_positions.append([x, y])
+    # pick one randomly
+    return random.choice(valid_positions)
+
+def spawn_item(state, entity, cardinal):
+    pos = random_valid_position(state, cardinal)
+    state['map'][cardinal][pos[1]][pos[0]] = entity
+
+def gen_items(state):
     # gen Trss's ring (east)
+    spawn_item(state, entities.TRSS_RING, 'E')
     # gen Trss's hat (west)
+    spawn_item(state, entities.TRSS_HAT, 'W')
     # gen health bottle (south)
+    spawn_item(state, entities.HEALTH_BOTTLE, 'S')
     # gen unknown ring (east)
-    pass
-
-def gen_temple_pieces(state):
-    pass
-
+    spawn_item(state, entities.UNKNOWN_RING, 'E')
+    # gen temple pieces
+    for i in range(0, N_TEMPLE_PIECES):
+        cardinal = random.choice(['N', 'S', 'W', 'E'])
+        spawn_item(state, entities.TEMPLE_PIECE, cardinal)
+    
 def gen_world(state):
     """
     populate the world with entities
@@ -207,8 +229,6 @@ def gen_world(state):
         state['world'][cardinal] = {}
     # generate nobles in central
     gen_central_nobles(state)
-    # gen special items
-    gen_special_items(state)
-    # gen temple pieces
-    gen_temple_pieces(state)
+    # gen items
+    gen_items(state)
 
