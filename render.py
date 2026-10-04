@@ -19,7 +19,13 @@ def render_world_entities(stdscr, state):
     cardinal = state['player']['setting']
     w = state['world']
     # render wiremites
-    # TODO
+    for wm in state['world']['wiremites']:
+        if wm['cardinal'] == cardinal:
+            stdscr.addstr(wm['position'][1]+1,
+                          wm['position'][0]+1,
+                          'M',
+                          curses.color_pair(wm['color']))
+                        
     # special-symbol central nobles
     if cardinal == 'C':
         for _, nid in enumerate(w['C']['nobles']):

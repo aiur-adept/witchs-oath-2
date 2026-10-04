@@ -103,3 +103,5 @@ def player_movement(stdscr, state, key):
     if space_free(state, new_pos): 
         state['player']['position'] = new_pos
 
+def wiremite_movement(stdscr, state):
+    # TODO

@@ -47,8 +47,8 @@ def animate_incant(stdscr, state, p, key):
         time.sleep(0.1)
 
 def incant_effect(state, p, key):
-    # TODO: characteristic effects on game state of each incantation
-    pass
+    # TODO - if wiremite matching incant in range, rescue noble and despawn wiremite
+    pass 
 
 def incant(stdscr, state, key):
     # display and animate the incantation before continuing

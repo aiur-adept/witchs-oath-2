@@ -32,7 +32,12 @@ from render import (
         render_entities
 )
 from movement import (
-        player_movement
+        player_movement,
+        wiremite_movement
+)
+from nobles import (
+        RNDRR_ID,
+        spawn_rescued_noble
 )
 
 # color fix for windows from
@@ -91,6 +96,7 @@ def game(stdscr, state):
                 key = last_input
             player_movement(stdscr, state, key)
             player_action(stdscr, state, key)
+            wiremite_movement(stdscr, state)
             last_input_time = current_time
             last_input = -1
         else:

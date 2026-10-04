@@ -20,13 +20,18 @@ from constants import (
 )
 
 from nobles import (
-        QMRSK_ID,
-        WMRSK_ID,
-        EMRSK_ID,
-        TRSS_ID 
+        gen_cardinal_nobles
+)
+
+from wiremites import (
+        gen_wiremites
 )
 
 import entities
+
+from util import (
+        random_valid_position
+)
 
 # determining which cardinals connect to which other cardinals, and where
 # (positions of antechambers as ratios of w,h)
@@ -155,53 +160,6 @@ def gen_map(state):
                 write_hallway(randoms[i], randoms[j], m)
         state['world']['antechambers'][cardinal] = acs
 
-def gen_central_nobles(state):
-    nobles = {}
-    nobles[QMRSK_ID] = {
-        'name': 'Qmrsk, Scion of Emanation',
-        'symbol': 'Q',
-        'position': [
-            MAGIC_MAP_W//2,
-            MAGIC_MAP_H//2 - MIDDLE_ROOM_DIMENSION//2,
-        ]
-    }
-    nobles[WMRSK_ID] = {
-        'name': 'Wmrsk, Scion of Occultation',
-        'symbol': 'W', 
-        'position': [
-            MAGIC_MAP_W//2,
-            MAGIC_MAP_H//2 + MIDDLE_ROOM_DIMENSION//2,
-        ]
-    }
-    nobles[EMRSK_ID] = {
-        'name': 'Emrsk, Scion of Annihilation',
-        'symbol': 'E',
-        'position': [
-            MAGIC_MAP_W//2 - MIDDLE_ROOM_DIMENSION//2,
-            MAGIC_MAP_H//2
-        ]
-    }
-    nobles[TRSS_ID] = {
-        'name': 'Trss, Noble of Power',
-        'symbol': 'T',
-        'position': [
-            MAGIC_MAP_W//2 + MIDDLE_ROOM_DIMENSION//2,
-            MAGIC_MAP_H//2
-        ]
-    }
-    state['world']['C']['nobles'] = nobles
-
-# NOTE: this is inefficient for sure, we ought to cache this per cardinal...
-def random_valid_position(state, cardinal):
-    # gen list of valid positions
-    valid_positions = []
-    for y in range(10, MAGIC_MAP_H-10):
-        for x in range(10, MAGIC_MAP_W-10):
-            if state['map'][cardinal][y][x] == entities.EMPTY_SPACE:
-                valid_positions.append([x, y])
-    # pick one randomly
-    return random.choice(valid_positions)
-
 def spawn_item(state, entity, cardinal):
     pos = random_valid_position(state, cardinal)
     state['map'][cardinal][pos[1]][pos[0]] = entity
@@ -219,7 +177,7 @@ def gen_items(state):
     for i in range(0, N_TEMPLE_PIECES):
         cardinal = random.choice(['N', 'S', 'W', 'E'])
         spawn_item(state, entities.TEMPLE_PIECE, cardinal)
-    
+
 def gen_world(state):
     """
     populate the world with entities
@@ -228,7 +186,10 @@ def gen_world(state):
     for _, cardinal in enumerate(connection_spec):
         state['world'][cardinal] = {}
     # generate nobles in central
-    gen_central_nobles(state)
+    gen_cardinal_nobles(state)
     # gen items
     gen_items(state)
+    # gen wiremites
+    gen_wiremites(state)
+
 
