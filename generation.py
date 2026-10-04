@@ -27,24 +27,30 @@ from nobles import (
 
 # determining which maps connect to which other maps, and where
 # (positions of antechambers as ratios of w,h)
+directions = {
+    'N': [0.5, 0.0],
+    'S': [0.5, 1.0],
+    'W': [0.0, 0.5],
+    'E': [1.0, 0.5]
+}
 connection_spec = {
     'C': {
-        'N': [0.5, 0.0],
-        'S': [0.5, 1.0],
-        'W': [0.0, 0.5],
-        'E': [1.0, 0.5]
+        'N': 'N',
+        'S': 'S',
+        'W': 'W',
+        'E': 'E'
     },
     'N': { 
-        'C': [0.5, 1.0],
+        'S': 'C'
     },
     'S': { 
-        'C': [0.5, 0.0],
+        'N': 'C'
     },
     'W': {
-        'C': [1.0, 0.5]
+        'E': 'C'
     },
     'E': {
-        'C': [0.0, 0.5],
+        'W': 'C'
     }
 }
 
@@ -68,7 +74,7 @@ def expand_rect(rect, n):
 def gen_antechambers(cardinal):
     antechambers = []
     for _, connect in enumerate(connection_spec[cardinal]):
-        ac_seed_pos = spec_to_seed_pos(connection_spec[cardinal][connect])
+        ac_seed_pos = spec_to_seed_pos(directions[connect])
         ac_rect = [ac_seed_pos[0], ac_seed_pos[1], 1, 1]
         antechamber = expand_rect(ac_rect, 3)
         antechambers.append(antechamber)
@@ -77,8 +83,8 @@ def gen_antechambers(cardinal):
 def gen_random_rects():
     def rand_rect():
         return [
-            random.randint(MAP_EDGE_CLEAR, MAGIC_MAP_W - MAP_EDGE_CLEAR),
-            random.randint(MAP_EDGE_CLEAR, MAGIC_MAP_H - MAP_EDGE_CLEAR),
+            random.randint(MAP_EDGE_CLEAR, MAGIC_MAP_W - MAP_EDGE_CLEAR - ROOM_SCALE//2),
+            random.randint(MAP_EDGE_CLEAR, MAGIC_MAP_H - MAP_EDGE_CLEAR - ROOM_SCALE//2),
             random.randint(4, ROOM_SCALE),
             random.randint(4, ROOM_SCALE)
         ]
@@ -88,10 +94,10 @@ def gen_random_rects():
         rects.append(rand_rect())
     return rects
 
+def central_point(r):
+    return [r[0]+r[2]//2, r[1]+r[3]//2]
 
 def write_hallway(r1, r2, m):
-    def central_point(r):
-        return [r[0]+r[2]//2, r[1]+r[3]//2]
     def room_delta(r1, r2):
         c1 = central_point(r1)
         c2 = central_point(r2)
@@ -127,6 +133,7 @@ def write_floorplan(rects, m):
                     m[y0 + j][x0 + i] = 0
 
 def gen_map(state):
+    state['world']['antechambers'] = {}
     for _, cardinal in enumerate(connection_spec):
         m = state['map'][cardinal]
         middle = [MAGIC_MAP_W//2 - MIDDLE_ROOM_DIMENSION, 
@@ -143,6 +150,8 @@ def gen_map(state):
         for i in range(0, len(randoms)):
             for j in range(i, len(randoms)):
                 write_hallway(randoms[i], randoms[j], m)
+        state['world']['antechambers'][cardinal] = acs
+
 
 def gen_world(state):
     """
@@ -152,7 +161,7 @@ def gen_world(state):
     nobles = {}
     nobles[QMRSK_ID] = {
         'name': 'Qmrsk, Scion of Emanation',
-        'symbol': 'q',
+        'symbol': 'Q',
         'position': [
             MAGIC_MAP_W//2,
             MAGIC_MAP_H//2 - MIDDLE_ROOM_DIMENSION//2,
@@ -160,7 +169,7 @@ def gen_world(state):
     }
     nobles[WMRSK_ID] = {
         'name': 'Wmrsk, Scion of Occultation',
-        'symbol': 'w', 
+        'symbol': 'W', 
         'position': [
             MAGIC_MAP_W//2,
             MAGIC_MAP_H//2 + MIDDLE_ROOM_DIMENSION//2,
@@ -168,7 +177,7 @@ def gen_world(state):
     }
     nobles[EMRSK_ID] = {
         'name': 'Emrsk, Scion of Annihilation',
-        'symbol': 'e',
+        'symbol': 'E',
         'position': [
             MAGIC_MAP_W//2 - MIDDLE_ROOM_DIMENSION//2,
             MAGIC_MAP_H//2
@@ -176,7 +185,7 @@ def gen_world(state):
     }
     nobles[TRSS_ID] = {
         'name': 'Trss, Noble of Power',
-        'symbol': 'r',
+        'symbol': 'T',
         'position': [
             MAGIC_MAP_W//2 + MIDDLE_ROOM_DIMENSION//2,
             MAGIC_MAP_H//2
