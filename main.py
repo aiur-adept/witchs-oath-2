@@ -32,6 +32,12 @@ from nobles import (
 from util import (
         in_rect
 )
+from colors import init_colors
+from incantations import incant
+from render import (
+        render_map,
+        render_entities
+)
 
 # color fix for windows from
 # https://www.reddit.com/r/learnpython/comments/1awa6mj/curses_color_reset_or_curses_foiled_again/
@@ -45,35 +51,10 @@ if os.name == 'nt':
 
 
 
-def render_map(stdscr, state):
-    curses.color_pair(0)
-    m = state['map'][state['player']['setting']]
-    for y, row in enumerate(m):
-        for x, e in enumerate(row):
-            stdscr.addstr(y+1, x+1, entities.displays[e])
-
-def render_entities(stdscr, state):
-    # render incants
-    # TODO
-    # render other entities
-    # TODO
-    # special-symbol central nobles
-    if state['player']['setting'] == 'C':
-        for _, nid in enumerate(state['world']['nobles']):
-            noble = state['world']['nobles'][nid]
-            stdscr.addstr(noble['position'][1]+1,
-                          noble['position'][0]+1,
-                          noble['symbol'],
-                          curses.color_pair(3))
-    # render player
-    player = state['player']
-    stdscr.addstr(player['position'][1]+1, 
-                  player['position'][0]+1, 
-                  entities.displays[entities.WITCH],
-                  curses.color_pair(2))
-
 def player_movement(stdscr, state, key):
     def collides_noble(p):
+        if state['player']['setting'] != 'C':
+            return None
         for _, nid in enumerate(state['world']['nobles']):
             npos = state['world']['nobles'][nid]['position']
             if p[0] == npos[0] and p[1] == npos[1]:
@@ -138,13 +119,11 @@ def player_movement(stdscr, state, key):
     if space_free(new_pos): 
         state['player']['position'] = new_pos
 
-def player_action(state, key):
-    pass
+def player_action(stdscr, state, key):
+    if key in [ord('q'), ord('w'), ord('e')]:
+        incant(stdscr, state, key)
 
-def game(stdscr, state):
-    stdscr.clear()
-    stdscr.resize(MAGIC_MAP_H+2, MAGIC_MAP_W+2)
-
+def init_state(state):
     state['player'] = {
             'position': [MAGIC_MAP_W//2, MAGIC_MAP_H//2],
             'setting': 'C'
@@ -159,6 +138,12 @@ def game(stdscr, state):
     }
     gen_map(state)
     gen_world(state)
+
+def game(stdscr, state):
+    stdscr.clear()
+    stdscr.resize(MAGIC_MAP_H+2, MAGIC_MAP_W+2)
+
+    init_state(state)
 
     last_input_time = 0
     last_input = -1
@@ -176,7 +161,7 @@ def game(stdscr, state):
             if last_input != -1 and key == -1:
                 key = last_input
             player_movement(stdscr, state, key)
-            player_action(state, key)
+            player_action(stdscr, state, key)
             last_input_time = current_time
             last_input = -1
         else:
@@ -257,12 +242,8 @@ def entrypoint(stdscr):
     # Enable special keyboard inputs (like arrow keys)
     stdscr.keypad(True)
 
-    curses.start_color()
-    curses.use_default_colors()
-    # player
-    curses.init_pair(2, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    # nobles
-    curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    # define colors
+    init_colors()
 
     # game state
     state = {}
