@@ -9,8 +9,30 @@ TRSS_ID  = 3
 
 noble_dialogs = {
         QMRSK_ID: [
+            "[You look upon Qmrsk, Scion of Emanation, a man of candlelight]",
+            "[Qmrsk speaks to you, his voice as a flickering of light]",
+            "Emanation was the school of light, creation, and boundless hope.",
+            "And it was with the Kindled Flame that we helped create them,",
+            "The wiremites...",
+            "It is said that the school of emanation partakes of each other.",
+            "Do not be so quick to judge, Traveller.",
+            "The incantation [Q], ah yes, I learned it long ago...",
+            "It will return them to peace. My friend for instance...",
+            "But I shall say no more."
         ],
         WMRSK_ID: [
+            "[You look upon Wmrsk, Scion of Occultation, a man of shadows]",
+            "[Wmrsk speaks to you, his voice as a deepening of shadow]",
+            "O Traveller...",
+            "Seek not the way to the south...",
+            "Lest ye too...",
+            "Enter occultation...",
+            "O woe... O annihilation... What hast thou wrought...",
+            "O Traveller...",
+            "[W], the incantation of Occultation... for the wiremites...",
+            "Perchance... shall thee seek my sister...? But no...",
+            "Thou art in occultation as well...",
+            "I shall speak no more..."
         ],
         EMRSK_ID: [
             "[You look upon Emrsk, Scion of Annihilation, a man of flames]",

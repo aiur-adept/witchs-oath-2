@@ -177,8 +177,8 @@ def about(stdscr, state):
     stdscr.addstr(0, 0, "--- ABOUT WITCH'S OATH 2 ---", curses.A_UNDERLINE)
     about_str = """
     Witch's Oath 2 is a game meant to be played in a single 
-    sitting using a terminal and the arrow keys plus Q, W, E (Incantation 
-    keys). 
+    sitting using a terminal and the arrow keys plus space, 
+    and Q, W, E (Incantation keys). 
 
     The story of the game is that of a Witch on a pilgrimage
     through four decaying wastelands to rebuild a temple created before the
