@@ -25,7 +25,7 @@ from nobles import (
         TRSS_ID 
 )
 
-# determining which maps connect to which other maps, and where
+# determining which cardinals connect to which other cardinals, and where
 # (positions of antechambers as ratios of w,h)
 directions = {
     'N': [0.5, 0.0],
@@ -152,12 +152,7 @@ def gen_map(state):
                 write_hallway(randoms[i], randoms[j], m)
         state['world']['antechambers'][cardinal] = acs
 
-
-def gen_world(state):
-    """
-    populate the world with entities
-    """
-    # generate nobles in central
+def gen_central_nobles(state):
     nobles = {}
     nobles[QMRSK_ID] = {
         'name': 'Qmrsk, Scion of Emanation',
@@ -191,5 +186,29 @@ def gen_world(state):
             MAGIC_MAP_H//2
         ]
     }
-    state['world']['nobles'] = nobles
+    state['world']['C']['nobles'] = nobles
+
+def gen_special_items(state):
+    # gen Trss's ring (east)
+    # gen Trss's hat (west)
+    # gen health bottle (south)
+    # gen unknown ring (east)
+    pass
+
+def gen_temple_pieces(state):
+    pass
+
+def gen_world(state):
+    """
+    populate the world with entities
+    """
+    # set up world scoping
+    for _, cardinal in enumerate(connection_spec):
+        state['world'][cardinal] = {}
+    # generate nobles in central
+    gen_central_nobles(state)
+    # gen special items
+    gen_special_items(state)
+    # gen temple pieces
+    gen_temple_pieces(state)
 

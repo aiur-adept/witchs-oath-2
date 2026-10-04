@@ -1,15 +1,15 @@
 displays = [
         ' ', # empty space          0   SPACE
-        '█', # barrier                  ITEMS
-        'o', # ritual coin
-        '^', # mana bottle
-        '+', # health bottle
+        '█', # barrier                  
+        'O', # Trss's ring TODO         ITEMS
+        '^', # Trss's hat TODO
+        '+', # health bottle TODO
         'w', # witch                5   ENTITIES
         'n', # noble
-        'b', # bird
-        'O', # ring
-        '*', # danger
-        't', # temple               10
+        'b', # bird TODO
+        '0', # unknown ring TODO 
+        'W', # wiremite TODO
+        't', # temple TODO          10
         '!', # Q Incantation            EFFECTS
         '@', # W Incantation 
         '#', # E Incantation
