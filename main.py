@@ -40,6 +40,9 @@ from nobles import (
         RNDRR_ID,
         spawn_rescued_noble
 )
+from util import (
+        near_trss
+)
 
 # color fix for windows from
 # https://www.reddit.com/r/learnpython/comments/1awa6mj/curses_color_reset_or_curses_foiled_again/
@@ -57,7 +60,8 @@ def player_action(stdscr, state, key):
     if key in [ord('q'), ord('w'), ord('e')]:
         incant(stdscr, state, key)
     temple_complete = (key == ord('t') and \
-            state['player']['temple_pieces_count'] == N_TEMPLE_PIECES)
+            state['player']['temple_pieces_count'] == N_TEMPLE_PIECES) and \
+            near_trss(state)
     return temple_complete
 
 def init_state(state):

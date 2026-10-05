@@ -1,8 +1,3 @@
-"""
-Witch's Oath 2
-by Nicole Hunter
-Autumn 2026
-"""
 import random
 import constants
 import logging

@@ -5,6 +5,9 @@ from constants import (
         MAGIC_MAP_H
 )
 import entities
+from nobles import (
+        TRSS_ID
+)
 
 
 
@@ -25,3 +28,11 @@ def random_valid_position(state, cardinal):
     # pick one randomly
     return random.choice(valid_positions)
 
+def near_trss(state):
+    trss = state['world']['C']['nobles'][TRSS_ID]
+    tp = trss['position']
+    witch = state['player']
+    p = witch['position']
+    dy = abs(tp[1] - p[1])
+    dx = abs(tp[0] - p[0])
+    return (dx <= 4 and dy <= 4)

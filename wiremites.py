@@ -65,7 +65,7 @@ def random_wiremite_msgs(wm):
             s += word + ' ' 
         return s
 
-    return [f'[you are touched by the {wm['name']}...]',
+    return [f"[you are touched by the {wm['name']}...]",
             'it cries out to you:',
             randomstr(),
             randomstr(),
@@ -80,5 +80,5 @@ def dialog_wiremite(stdscr, state, wm):
 def return_wiremite_to_peace(stdscr, state, wm):
     state['world']['wiremites'].remove(wm)
     spawn_rescued_noble(state, wm['true_identity'])
-    dialog_flow(stdscr, [f'[You have returned the {wm['name']} to peace.]'])
+    dialog_flow(stdscr, [f"[You have returned the {wm['name']} to peace.]"])
     state['player'][wm['confers']] = True

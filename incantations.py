@@ -1,6 +1,10 @@
 import curses
 import time
 
+from constants import (
+        MAGIC_MAP_W,
+        MAGIC_MAP_H
+)
 from entities import (
         displays,
         Q_INCANT,
@@ -41,7 +45,8 @@ def animate_incant(stdscr, state, p, key):
     for i in range(0, 6):
         if (i % 2) == 0:
             for dy in range(-3, 2):
-                stdscr.addstr(p[1]-dy, p[0]-1, 
+                stdscr.addstr(max(0, min(MAGIC_MAP_H-1, p[1]-dy)), 
+                              max(0, min(MAGIC_MAP_W-1, p[0]-1)), 
                               symbol*5, curses.color_pair(color)),
         else:
             render_entities(stdscr, state) 
@@ -61,7 +66,7 @@ def incant_effect(stdscr, state, p, key):
     ppos = state['player']['position']
     dx = abs(wmpos[0] - ppos[0])
     dy = abs(wmpos[1] - ppos[1])
-    if (dx <= 2 or dy <= 2) and wm_here['weakness'] == key:
+    if (dx <= 2 and dy <= 2) and wm_here['weakness'] == key:
         return_wiremite_to_peace(stdscr, state, wm_here) 
 
 def incant(stdscr, state, key):
